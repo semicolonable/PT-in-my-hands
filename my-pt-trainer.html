@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 손 안의 PT - 맞춤형 웨이트 트레이닝 플래너</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* 헤더 스타일 */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .profile-pic {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-pic:hover {
+            transform: scale(1.1);
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .logout-btn {
+            padding: 0.6rem 1.5rem;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        /* 메인 컨테이너 */
+        .main-container {
+            display: grid;
+            grid-template-columns: 320px 1fr 340px;
+            gap: 2rem;
+            padding: 2rem 3rem;
+            max-width: 1900px;
+            margin: 0 auto;
+        }
+
+        /* 좌측 운동 리스트 */
+        .exercise-list-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: #333;
+            text-align: center;
+        }
+
+        .exercise-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .exercise-item:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .exercise-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .exercise-image {
+            width: 100%;
+            height: 120px;
+            background: #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .exercise-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .default-message {
+            text-align: center;
+            color: #6c757d;
+            padding: 2rem;
+            font-size: 1.1rem;
+        }
+
+        /* 중앙 인체모형도 */
+        .body-diagram-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-height: 85vh;
+        }
+
+        .body-diagram-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 700px;
+            margin: 0 auto;
+        }
+
+        .body-diagram {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .body-diagram img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* 클릭 가능한 근육 영역 */
+        .clickable-area {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: transparent;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        .clickable-area:hover {
+            background: rgba(255, 0, 0, 0.3);
+            border-color: rgba(255, 0, 0, 0.5);
+        }
+
+        .clickable-area.active {
+            background: rgba(255, 0, 0, 0.4);
+            border-color: rgba(255, 0, 0, 0.8);
+            color: white;
+        }
+
+        /* 앞면 근육 영역 (왼쪽) */
+        .front-shoulder-left { top: 23%; left: 12%; width: 7%; height: 8%; }
+        .front-shoulder-right { top: 23%; left: 37%; width: 7%; height: 8%; }
+        .front-chest-left { top: 24%; left: 20%; width: 8%; height: 10%; }
+        .front-chest-right { top: 24%; left: 28%; width: 8%; height: 10%; }
+        .front-biceps-left { top: 31%; left: 12%; width: 5%; height: 10%; }
+        .front-biceps-right { top: 31%; left: 39%; width: 5%; height: 10%; }
+        .front-forearm-left { top: 41%; left: 12%; width: 4%; height: 12%; }
+        .front-forearm-right { top: 41%; left: 40%; width: 4%; height: 12%; }
+        .front-abs { top: 35%; left: 24%; width: 8%; height: 16%; }
+        .front-quads-left { top: 54%; left: 19%; width: 6%; height: 16%; }
+        .front-quads-right { top: 54%; left: 31%; width: 6%; height: 16%; }
+        .front-calves-left { top: 72%; left: 19%; width: 6%; height: 13%; }
+        .front-calves-right { top: 72%; left: 31%; width:6%; height: 13%; }
+
+        /* 뒷면 근육 영역 (오른쪽) */
+        .back-traps-left { top: 18%; left: 64%; width: 5%; height: 6%; }
+        .back-traps-right { top: 18%; left: 69%; width: 5%; height: 6%; }
+        .back-shoulder-left { top: 24%; left: 53%; width: 7%; height: 9%; }
+        .back-shoulder-right { top: 24%; left: 79%; width: 7%; height: 9%; }
+        .back-lats-left { top: 24%; left: 60%; width: 10%; height: 18%; }
+        .back-lats-right { top: 24%; left: 69%; width: 10%; height: 18%; }
+        .back-triceps-left { top: 33%; left: 54%; width: 6%; height: 9%; }
+        .back-triceps-right { top: 33%; left: 80%; width: 6%; height: 9%; }
+        .back-erector { top: 42%; left: 61%; width: 16%; height: 8%; }
+        .back-glutes-left { top: 50%; left: 60%; width: 9%; height: 8%; }
+        .back-glutes-right { top: 50%; left: 69%; width: 9%; height: 8%; }
+        .back-hamstrings-left { top: 58%; left: 60%; width: 6%; height: 11%; }
+        .back-hamstrings-right { top: 58%; left: 73%; width: 6%; height: 11%; }
+        .back-calves-left { top: 69%; left: 61%; width: 6%; height: 17%; }
+        .back-calves-right { top: 69%; left: 73%; width: 6%; height: 17%; }
+
+        #front-tab:checked ~ .body-diagram-container #front-body {
+            display: block;
+        }
+
+        #front-tab:checked ~ .body-diagram-container #back-body {
+            display: none;
+        }
+
+        #back-tab:checked ~ .body-diagram-container #front-body {
+            display: none;
+        }
+
+        #back-tab:checked ~ .body-diagram-container #back-body {
+            display: block;
+        }
+
+        /* 우측 장바구니 */
+        .cart-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            min-height: 300px;
+        }
+
+        .cart-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.8rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .drag-handle {
+            cursor: move;
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+
+        .cart-item-content {
+            flex: 1;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .empty-cart-message {
+            text-align: center;
+            color: #6c757d;
+            padding: 2rem;
+            font-size: 1rem;
+        }
+
+        .cart-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .auto-recommend-btn,
+        .reset-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .auto-recommend-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .auto-recommend-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .auto-recommend-btn:hover::before {
+            content: "지금 담은 운동에서 추가 할 운동을 AI로 추천드려요";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            white-space: nowrap;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .auto-recommend-btn:hover::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+            margin-bottom: -6px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .start-workout-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            position: relative;
+        }
+
+        .start-workout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .start-workout-btn.intensity-low {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        }
+
+        .start-workout-btn.intensity-low:hover {
+            box-shadow: 0 10px 25px rgba(0, 123, 255, 0.4);
+        }
+
+        .start-workout-btn.intensity-low:hover::before {
+            content: "운동강도가 부족할 수 있어요";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            white-space: nowrap;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .start-workout-btn.intensity-low:hover::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+            margin-bottom: -6px;
+        }
+
+        .start-workout-btn.intensity-high {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .start-workout-btn.intensity-high:hover {
+            box-shadow: 0 10px 25px rgba(220, 53, 69, 0.4);
+        }
+
+        .start-workout-btn.intensity-high:hover::before {
+            content: "운동강도가 커서 무리가 갈 수 있어요";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            white-space: nowrap;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .start-workout-btn.intensity-high:hover::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+            margin-bottom: -6px;
+        }
+
+        /* 푸터 - 유튜브 영상 슬라이더 */
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem 3rem;
+            margin: 2rem 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: #333;
+        }
+
+        .slider-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-slider {
+            display: flex;
+            transition: transform 0.5s ease;
+            gap: 1rem;
+        }
+
+        .video-item {
+            min-width: calc((100% - 9rem) / 10);
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .video-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 100px;
+            background: #dee2e6;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-title {
+            font-size: 0.75rem;
+            color: #333;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .slider-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .slider-btn {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .slider-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .slider-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1400px) {
+            .main-container {
+                grid-template-columns: 300px 1fr 320px;
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+
+            .video-item {
+                min-width: calc((100% - 4rem) / 5);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            header {
+                padding: 1rem 1.5rem;
+            }
+
+            .logo {
+                font-size: 1.3rem;
+            }
+
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+
+            .exercise-list-section,
+            .body-diagram-section,
+            .cart-section {
+                max-height: none;
+            }
+
+            .body-diagram-container {
+                height: 500px;
+            }
+
+            .video-item {
+                min-width: calc((100% - 2rem) / 3);
+            }
+
+            footer {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .main-container {
+                padding: 0.5rem;
+                gap: 1rem;
+            }
+
+            .video-item {
+                min-width: calc((100% - 1rem) / 2);
+            }
+        }
+
+        /* 스크롤바 스타일 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header>
+        <div class="logo">💪 내 손 안의 PT</div>
+        <div class="user-info">
+            <div class="profile-pic">
+                <img src="https://static.toiimg.com/thumb/msid-123665346,imgsize-695546,width-400,resizemode-4/bodybuilding-legend-ronnie-coleman-back-training-weeks.jpg" alt="프로필">
+            </div>
+            <span class="user-name">윤준형</span>
+            <button class="logout-btn">로그아웃</button>
+        </div>
+    </header>
+
+    <!-- 메인 컨테이너 -->
+    <div class="main-container">
+        <!-- 좌측 운동 리스트 -->
+        <section class="exercise-list-section">
+            <h2 class="section-title">운동 선택</h2>
+            
+            <div id="exercise-list">
+                <div class="default-message">
+                    오른쪽 인체도에서<br>근육을 선택하세요 →
+                </div>
+            </div>
+        </section>
+
+        <!-- 중앙 인체모형도 -->
+        <section class="body-diagram-section">
+            <h2 class="section-title">운동할 부위를 선택하세요</h2>
+
+            <div class="body-diagram-container">
+                <div class="body-diagram">
+                    <img src="https://mblogthumb-phinf.pstatic.net/20100721_25/k2hegg_1279694411090Q124T_jpg/%C0%CE%C3%BC%BD%BA%C5%CD%B5%F0_1%C1%D6_%B1%E8%B0%E6%C8%AD_k2hegg.jpg?type=w210" alt="인체도">
+                    
+                    <!-- 앞면 근육 영역 (왼쪽) -->
+                    <div class="clickable-area front-shoulder-left" onclick="updateExerciseList('shoulder')" title="어깨">어깨</div>
+                    <div class="clickable-area front-shoulder-right" onclick="updateExerciseList('shoulder')" title="어깨">어깨</div>
+                    <div class="clickable-area front-chest-left" onclick="updateExerciseList('chest')" title="가슴">가슴</div>
+                    <div class="clickable-area front-chest-right" onclick="updateExerciseList('chest')" title="가슴">가슴</div>
+                    <div class="clickable-area front-biceps-left" onclick="updateExerciseList('biceps')" title="이두근">이두</div>
+                    <div class="clickable-area front-biceps-right" onclick="updateExerciseList('biceps')" title="이두근">이두</div>
+                    <div class="clickable-area front-forearm-left" onclick="updateExerciseList('forearm')" title="전완근">전완</div>
+                    <div class="clickable-area front-forearm-right" onclick="updateExerciseList('forearm')" title="전완근">전완</div>
+                    <div class="clickable-area front-abs" onclick="updateExerciseList('abs')" title="복근">복근</div>
+                    <div class="clickable-area front-quads-left" onclick="updateExerciseList('quads')" title="허벅지">허벅지</div>
+                    <div class="clickable-area front-quads-right" onclick="updateExerciseList('quads')" title="허벅지">허벅지</div>
+                    <div class="clickable-area front-calves-left" onclick="updateExerciseList('calves')" title="종아리">종아리</div>
+                    <div class="clickable-area front-calves-right" onclick="updateExerciseList('calves')" title="종아리">종아리</div>
+                    
+                    <!-- 뒷면 근육 영역 (오른쪽) -->
+                    <div class="clickable-area back-traps-left" onclick="updateExerciseList('traps')" title="승모근">승모근</div>
+                    <div class="clickable-area back-traps-right" onclick="updateExerciseList('traps')" title="승모근">승모근</div>
+                    <div class="clickable-area back-shoulder-left" onclick="updateExerciseList('rear-shoulder')" title="어깨 후면">후어깨</div>
+                    <div class="clickable-area back-shoulder-right" onclick="updateExerciseList('rear-shoulder')" title="어깨 후면">후어깨</div>
+                    <div class="clickable-area back-lats-left" onclick="updateExerciseList('lats')" title="등">등</div>
+                    <div class="clickable-area back-lats-right" onclick="updateExerciseList('lats')" title="등">등</div>
+                    <div class="clickable-area back-triceps-left" onclick="updateExerciseList('triceps')" title="삼두근">삼두</div>
+                    <div class="clickable-area back-triceps-right" onclick="updateExerciseList('triceps')" title="삼두근">삼두</div>
+                    <div class="clickable-area back-erector" onclick="updateExerciseList('erector')" title="기립근">기립근</div>
+                    <div class="clickable-area back-glutes-left" onclick="updateExerciseList('glutes')" title="둔근">둔근</div>
+                    <div class="clickable-area back-glutes-right" onclick="updateExerciseList('glutes')" title="둔근">둔근</div>
+                    <div class="clickable-area back-hamstrings-left" onclick="updateExerciseList('hamstrings')" title="햄스트링">햄스트링</div>
+                    <div class="clickable-area back-hamstrings-right" onclick="updateExerciseList('hamstrings')" title="햄스트링">햄스트링</div>
+                    <div class="clickable-area back-calves-left" onclick="updateExerciseList('calves-back')" title="종아리">종아리</div>
+                    <div class="clickable-area back-calves-right" onclick="updateExerciseList('calves-back')" title="종아리">종아리</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 우측 장바구니 -->
+        <section class="cart-section">
+            <h2 class="section-title">내 운동 플랜</h2>
+            
+            <div class="cart-items" id="cart-items">
+                <div class="empty-cart-message">
+                    운동을 선택하면<br>여기에 추가됩니다
+                </div>
+            </div>
+
+            <div class="cart-actions">
+                <button class="auto-recommend-btn" id="auto-recommend">✨ 자동 추천</button>
+                <button class="reset-btn" id="reset-cart">🔄 초기화</button>
+            </div>
+
+            <button class="start-workout-btn" id="start-workout">🏋️ 운동 시작하기</button>
+        </section>
+    </div>
+
+    <!-- 푸터 - 유튜브 영상 슬라이더 -->
+    <footer>
+        <h2 class="footer-title">🎥 추천 운동 영상</h2>
+        
+        <div class="slider-container">
+            <div class="video-slider" id="video-slider">
+                <!-- 영상 1-10 -->
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="IODxDxX7oi4">
+                    </div>
+                    <div class="video-title">완벽한 가슴 운동 루틴</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="sw7O-LHZfp4">
+                    </div>
+                    <div class="video-title">등 운동 완벽 가이드</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="2yjwXTZQDDI">
+                    </div>
+                    <div class="video-title">어깨 넓어지는 루틴</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="eGo4IYlbE5g">
+                    </div>
+                    <div class="video-title">팔뚝 키우기 완벽 가이드</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="JlRIyLb8o-k">
+                    </div>
+                    <div class="video-title">복근 만들기 10분 운동</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="gcNh17Ckjek">
+                    </div>
+                    <div class="video-title">하체 운동 풀 루틴</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="R6gZoAzAhCg">
+                    </div>
+                    <div class="video-title">데드리프트 정확한 자세</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="fEUvI8Q6JDk">
+                    </div>
+                    <div class="video-title">스쿼트 자세 교정</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="gRVjAtPip0Y">
+                    </div>
+                    <div class="video-title">벤치프레스 완벽 가이드</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="2C-uNgKwPLE">
+                    </div>
+                    <div class="video-title">초보자 헬스 시작 가이드</div>
+                </div>
+
+                <!-- 영상 11-20 -->
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="zCYorQpOwWg">
+                    </div>
+                    <div class="video-title">풀업 잘하는 방법</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="FXOLd0HqKg0">
+                    </div>
+                    <div class="video-title">삼두근 키우기</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="soxrZlIl35U">
+                    </div>
+                    <div class="video-title">이두근 펌핑 루틴</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="QsYre__-aro">
+                    </div>
+                    <div class="video-title">종아리 키우기 운동</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="aX-YuvQccuM">
+                    </div>
+                    <div class="video-title">둔근 발달 운동</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="4BOTvaRaDjI">
+                    </div>
+                    <div class="video-title">전신 운동 30분</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="1Ip0aL_kQKM">
+                    </div>
+                    <div class="video-title">근육통 회복 스트레칭</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="ixkQaZXVQjs">
+                    </div>
+                    <div class="video-title">워밍업 루틴</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="A8eENlgfKc0">
+                    </div>
+                    <div class="video-title">홈트레이닝 맨몸 운동</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="2aN8JMqRwPM">
+                    </div>
+                    <div class="video-title">운동 영양 가이드</div>
+                </div>
+
+                <!-- 영상 21-30 -->
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="U3HlEF_E9fo">
+                    </div>
+                    <div class="video-title">가슴 근육 폭발 루틴</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="gJeUSH-48qE">
+                    </div>
+                    <div class="video-title">광배근 만들기</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="CnBmiBqp-AI">
+                    </div>
+                    <div class="video-title">어깨 운동 루틴</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="quM-3Sl8xjM">
+                    </div>
+                    <div class="video-title">하체 데이 완벽 가이드</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="qEwKCR5JCog">
+                    </div>
+                    <div class="video-title">복근 운동 10분</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="WvLMKiV3PYM">
+                    </div>
+                    <div class="video-title">체지방 감량 운동</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="PKmm7GjXx-w">
+                    </div>
+                    <div class="video-title">팔 운동 완벽 가이드</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="YyvSfVjQeL4">
+                    </div>
+                    <div class="video-title">등 두께 키우기</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="ST4wfBbKPyw">
+                    </div>
+                    <div class="video-title">코어 강화 운동</div>
+                </div>
+                <div class="video-item">
+                    <div class="video-thumbnail">
+                        <img src="" alt="운동 영상" data-video-id="LT_590B1AFQ">
+                    </div>
+                    <div class="video-title">근력 향상 프로그램</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slider-controls">
+            <button class="slider-btn" id="prev-btn">◀ 이전</button>
+            <button class="slider-btn" id="next-btn">다음 ▶</button>
+        </div>
+    </footer>
+
+    <script>
+        // 운동 데이터 (이미지 URL은 공란으로 남김 - 사용자가 직접 입력할 수 있도록)
+// URL: Uniform Resource Locator (인터넷 자원의 위치를 나타내는 표준 주소 형식)
+
+const exerciseData = {
+    shoulder: [
+        {
+            name: "오버헤드 프레스",
+            image: "../images/S001_overhead_press.png",3944454/pexels-photo-3944454.jpeg",
+            intensity: 9
+        },
+        {
+            name: "사이드 레터럴 레이즈",
+            image: "../images/S002_lateral_raise.png",6550851/pexels-photo-6550851.jpeg",
+            intensity: 4
+        },
+        {
+            name: "프론트 레이즈",
+            image: "../images/S003_front_raise.png",6550851/pexels-photo-6550851.jpeg",
+            intensity: 4
+        },
+        {
+            name: "업라이트 로우",
+            image: "../images/S004_upright_row.png",34786094/pexels-photo-34786094.jpeg",
+            intensity: 6
+        },
+        {
+            name: "아놀드 프레스",
+            image: "../images/S005_arnold_press.png",4506078/pexels-photo-4506078.jpeg",
+            intensity: 8
+        },
+        {
+            name: "덤벨 숄더 프레스",
+            image: "../images/S006_dumbbell_shoulder_press.png",6456284/pexels-photo-6456284.jpeg",
+            intensity: 7
+        },
+        {
+            name: "케이블 레터럴 레이즈",
+            image: "../images/S007_cable_lateral_raise.png",6550851/pexels-photo-6550851.jpeg",
+            intensity: 3
+        },
+        {
+            name: "리버스 플라이",
+            image: "../images/S008_reverse_fly.png",6456329/pexels-photo-6456329.jpeg",
+            intensity: 4
+        }
+    ],
+    chest: [
+        {
+            name: "벤치 프레스",
+            image: "../images/C001_bench_press.png",3822186/pexels-photo-3822186.jpeg",
+            intensity: 10
+        },
+        {
+            name: "인클라인 벤치 프레스",
+            image: "../images/C002_incline_bench_press.png",3822186/pexels-photo-3822186.jpeg",
+            intensity: 9
+        },
+        {
+            name: "덤벨 플라이",
+            image: "../images/C003_dumbbell_fly.png",6455805/pexels-photo-6455805.jpeg",
+            intensity: 6
+        },
+        {
+            name: "푸시업",
+            image: "../images/C004_push_up.png",1552242/pexels-photo-1552242.jpeg",
+            intensity: 5
+        },
+        {
+            name: "디클라인 벤치 프레스",
+            image: "../images/C005_decline_bench_press.png",3823063/pexels-photo-3823063.jpeg",
+            intensity: 9
+        },
+        {
+            name: "케이블 크로스오버",
+            image: "../images/C006_cable_crossover.png",6456336/pexels-photo-6456336.jpeg",
+            intensity: 4
+        },
+        {
+            name: "딥스",
+            image: "../images/C007_dips.png",3837754/pexels-photo-3837754.jpeg",
+            intensity: 8
+        },
+        {
+            name: "머신 체스트 프레스",
+            image: "../images/C008_chest_press.png",6456218/pexels-photo-6456218.jpeg",
+            intensity: 7
+        }
+    ],
+    biceps: [
+        {
+            name: "바벨 컬",
+            image: "../images/B001_barbell_curl.png",6551017/pexels-photo-6551017.jpeg",
+            intensity: 6
+        },
+        {
+            name: "덤벨 컬",
+            image: "../images/B002_dumbbell_curl.png",1552101/pexels-photo-1552101.jpeg",
+            intensity: 5
+        },
+        {
+            name: "해머 컬",
+            image: "../images/B003_hammer_curl.png",4754133/pexels-photo-4754133.jpeg",
+            intensity: 5
+        },
+        {
+            name: "케이블 컬",
+            image: "../images/B004_cable_curl.png",6456320/pexels-photo-6456320.jpeg",
+            intensity: 4
+        },
+        {
+            name: "컨센트레이션 컬",
+            image: "../images/B005_concentration_curl.png",6456317/pexels-photo-6456317.jpeg",
+            intensity: 4
+        },
+        {
+            name: "프리처 컬",
+            image: "../images/B006_preacher_curl.png",3837788/pexels-photo-3837788.jpeg",
+            intensity: 6
+        },
+        {
+            name: "인클라인 덤벨 컬",
+            image: "../images/B007_incline_dumbbell_curl.png",6455798/pexels-photo-6455798.jpeg",
+            intensity: 5
+        }
+    ],
+    triceps: [
+        {
+            name: "트라이셉스 푸시다운",
+            image: "../images/T001_triceps_pushdown.png",6456320/pexels-photo-6456320.jpeg",
+            intensity: 5
+        },
+        {
+            name: "오버헤드 익스텐션",
+            image: "../images/T002_overhead_extension.png",6455798/pexels-photo-6455798.jpeg",
+            intensity: 6
+        },
+        {
+            name: "덤벨 킥백",
+            image: "../images/T003_dumbbell_kickback.png",6456317/pexels-photo-6456317.jpeg",
+            intensity: 3
+        },
+        {
+            name: "클로즈 그립 벤치프레스",
+            image: "../images/T004_close_grip_bench_press.png",3822186/pexels-photo-3822186.jpeg",
+            intensity: 9
+        },
+        {
+            name: "스컬 크러셔",
+            image: "../images/T005_skull_crusher.png",6455805/pexels-photo-6455805.jpeg",
+            intensity: 7
+        },
+        {
+            name: "로프 푸시다운",
+            image: "../images/T006_rope_pushdown.png",6456336/pexels-photo-6456336.jpeg",
+            intensity: 5
+        },
+        {
+            name: "딥스",
+            image: "../images/C007_dips.png",3837754/pexels-photo-3837754.jpeg",
+            intensity: 8
+        }
+    ],
+    forearm: [
+        {
+            name: "리스트 컬",
+            image: "../images/F001_wrist_curl.png",4753892/pexels-photo-4753892.jpeg",
+            intensity: 3
+        },
+        {
+            name: "리버스 리스트 컬",
+            image: "../images/F002_reverse_wrist_curl.png",4753892/pexels-photo-4753892.jpeg",
+            intensity: 3
+        },
+        {
+            name: "해머 컬",
+            image: "../images/B003_hammer_curl.png",4754133/pexels-photo-4754133.jpeg",
+            intensity: 5
+        },
+        {
+            name: "리버스 바벨 컬",
+            image: "../images/F004_reverse_barbell_curl.png",6551017/pexels-photo-6551017.jpeg",
+            intensity: 5
+        },
+        {
+            name: "파머스 워크",
+            image: "../images/F005_farmers_walk.png",6551016/pexels-photo-6551016.jpeg",
+            intensity: 7
+        }
+    ],
+    abs: [
+        {
+            name: "크런치",
+            image: "../images/A001_crunch.png",3823063/pexels-photo-3823063.jpeg",
+            intensity: 3
+        },
+        {
+            name: "플랭크",
+            image: "../images/A002_plank.png",1552242/pexels-photo-1552242.jpeg",
+            intensity: 5
+        },
+        {
+            name: "레그 레이즈",
+            image: "../images/A003_leg_raise.png",3837757/pexels-photo-3837757.jpeg",
+            intensity: 6
+        },
+        {
+            name: "러시안 트위스트",
+            image: "../images/A004_russian_twist.png",6550839/pexels-photo-6550839.jpeg",
+            intensity: 5
+        },
+        {
+            name: "바이시클 크런치",
+            image: "https://images.pexels.com/photos/3961338/pexels-photo-3961338.jpeg",
+            intensity: 4
+        },
+        {
+            name: "마운틴 클라이머",
+            image: "https://images.pexels.com/photos/1552249/pexels-photo-1552249.jpeg",
+            intensity: 6
+        },
+        {
+            name: "행잉 레그 레이즈",
+            image: "../images/A007_hanging_leg_raise.png",1552252/pexels-photo-1552252.jpeg",
+            intensity: 8
+        },
+        {
+            name: "앱 롤아웃",
+            image: "../images/A008_ab_wheel_rollout.png",4761669/pexels-photo-4761669.jpeg",
+            intensity: 7
+        }
+    ],
+    quads: [
+        {
+            name: "스쿼트",
+            image: "../images/Q001_squat.png",1552103/pexels-photo-1552103.jpeg",
+            intensity: 10
+        },
+        {
+            name: "레그 프레스",
+            image: "../images/Q002_leg_press.png",3837781/pexels-photo-3837781.jpeg",
+            intensity: 9
+        },
+        {
+            name: "레그 익스텐션",
+            image: "../images/Q003_leg_extension.png",6456229/pexels-photo-6456229.jpeg",
+            intensity: 5
+        },
+        {
+            name: "프론트 스쿼트",
+            image: "../images/Q004_front_squat.png",6551011/pexels-photo-6551011.jpeg",
+            intensity: 10
+        },
+        {
+            name: "불가리안 스플릿 스쿼트",
+            image: "../images/Q005_bulgarian_split_squat.png",6550839/pexels-photo-6550839.jpeg",
+            intensity: 8
+        },
+        {
+            name: "워킹 런지",
+            image: "../images/Q006_walking_lunge.png",6550839/pexels-photo-6550839.jpeg",
+            intensity: 7
+        },
+        {
+            name: "해크 스쿼트",
+            image: "../images/Q007_hack_squat.png",3837790/pexels-photo-3837790.jpeg",
+            intensity: 9
+        }
+    ],
+    traps: [
+        {
+            name: "슈러그",
+            image: "../images/TR001_shrug.png",6551012/pexels-photo-6551012.jpeg",
+            intensity: 5
+        },
+        {
+            name: "업라이트 로우",
+            image: "../images/S004_upright_row.png",34786094/pexels-photo-34786094.jpeg",
+            intensity: 6
+        },
+        {
+            name: "페이스 풀",
+            image: "../images/RS002_face_pull.png",6456336/pexels-photo-6456336.jpeg",
+            intensity: 4
+        },
+        {
+            name: "덤벨 슈러그",
+            image: "https://images.pexels.com/photos/6551012/pexels-photo-6551012.jpeg",
+            intensity: 5
+        },
+        {
+            name: "랙 풀",
+            image: "../images/TR002_rack_pull.png",6455807/pexels-photo-6455807.jpeg",
+            intensity: 8
+        }
+    ],
+    "rear-shoulder": [
+        {
+            name: "리어 델트 플라이",
+            image: "../images/RS001_rear_delt_fly.png",6456329/pexels-photo-6456329.jpeg",
+            intensity: 4
+        },
+        {
+            name: "페이스 풀",
+            image: "../images/RS002_face_pull.png",6456336/pexels-photo-6456336.jpeg",
+            intensity: 4
+        },
+        {
+            name: "밴드 풀 어파트",
+            image: "../images/RS003_band_pull_apart.png",1552106/pexels-photo-1552106.jpeg",
+            intensity: 3
+        },
+        {
+            name: "리버스 펙 덱",
+            image: "../images/RS004_reverse_pec_deck.png",6456329/pexels-photo-6456329.jpeg",
+            intensity: 4
+        },
+        {
+            name: "벤트오버 레터럴 레이즈",
+            image: "../images/RS005_bent_over_lateral_raise.png",6456329/pexels-photo-6456329.jpeg",
+            intensity: 5
+        }
+    ],
+    lats: [
+        {
+            name: "데드리프트",
+            image: "../images/L001_deadlift.png",6551011/pexels-photo-6551011.jpeg",
+            intensity: 10
+        },
+        {
+            name: "풀업",
+            image: "https://images.pexels.com/photos/1552102/pexels-photo-1552102.jpeg",
+            intensity: 8
+        },
+        {
+            name: "랫 풀다운",
+            image: "https://images.pexels.com/photos/3837782/pexels-photo-3837782.jpeg",
+            intensity: 6
+        },
+        {
+            name: "바벨 로우",
+            image: "https://images.pexels.com/photos/6551009/pexels-photo-6551009.jpeg",
+            intensity: 9
+        },
+        {
+            name: "덤벨 로우",
+            image: "https://images.pexels.com/photos/6551009/pexels-photo-6551009.jpeg",
+            intensity: 7
+        },
+        {
+            name: "티바 로우",
+            image: "https://images.pexels.com/photos/3837782/pexels-photo-3837782.jpeg",
+            intensity: 8
+        },
+        {
+            name: "시티드 케이블 로우",
+            image: "https://images.pexels.com/photos/6456320/pexels-photo-6456320.jpeg",
+            intensity: 6
+        },
+        {
+            name: "펜들레이 로우",
+            image: "https://images.pexels.com/photos/6551009/pexels-photo-6551009.jpeg",
+            intensity: 9
+        }
+    ],
+    erector: [
+        {
+            name: "백 익스텐션",
+            image: "https://images.pexels.com/photos/6550837/pexels-photo-6550837.jpeg",
+            intensity: 5
+        },
+        {
+            name: "슈퍼맨",
+            image: "https://images.pexels.com/photos/3823063/pexels-photo-3823063.jpeg",
+            intensity: 3
+        },
+        {
+            name: "굿모닝",
+            image: "../images/E001_good_morning.png",6550846/pexels-photo-6550846.jpeg",
+            intensity: 7
+        },
+        {
+            name: "데드리프트",
+            image: "../images/L001_deadlift.png",6551011/pexels-photo-6551011.jpeg",
+            intensity: 10
+        },
+        {
+            name: "하이퍼익스텐션",
+            image: "../images/E003_hyperextension.png",6550837/pexels-photo-6550837.jpeg",
+            intensity: 5
+        }
+    ],
+    glutes: [
+        {
+            name: "힙 쓰러스트",
+            image: "../images/G001_hip_thrust.png",6550838/pexels-photo-6550838.jpeg",
+            intensity: 8
+        },
+        {
+            name: "루마니안 데드리프트",
+            image: "../images/G002_romanian_deadlift.png",6550846/pexels-photo-6550846.jpeg",
+            intensity: 9
+        },
+        {
+            name: "글루트 브릿지",
+            image: "https://images.pexels.com/photos/6550838/pexels-photo-6550838.jpeg",
+            intensity: 5
+        },
+        {
+            name: "런지",
+            image: "https://images.pexels.com/photos/6550839/pexels-photo-6550839.jpeg",
+            intensity: 7
+        },
+        {
+            name: "불가리안 스플릿 스쿼트",
+            image: "../images/Q005_bulgarian_split_squat.png",6550839/pexels-photo-6550839.jpeg",
+            intensity: 8
+        },
+        {
+            name: "케이블 킥백",
+            image: "https://images.pexels.com/photos/6456320/pexels-photo-6456320.jpeg",
+            intensity: 4
+        },
+        {
+            name: "스모 스쿼트",
+            image: "https://images.pexels.com/photos/1552103/pexels-photo-1552103.jpeg",
+            intensity: 9
+        }
+    ],
+    hamstrings: [
+        {
+            name: "루마니안 데드리프트",
+            image: "../images/G002_romanian_deadlift.png",6550846/pexels-photo-6550846.jpeg",
+            intensity: 9
+        },
+        {
+            name: "레그 컬",
+            image: "https://images.pexels.com/photos/6456229/pexels-photo-6456229.jpeg",
+            intensity: 5
+        },
+        {
+            name: "스티프 레그 데드리프트",
+            image: "https://images.pexels.com/photos/6550846/pexels-photo-6550846.jpeg",
+            intensity: 9
+        },
+        {
+            name: "노르딕 컬",
+            image: "https://images.pexels.com/photos/6550837/pexels-photo-6550837.jpeg",
+            intensity: 8
+        },
+        {
+            name: "시티드 레그 컬",
+            image: "https://images.pexels.com/photos/6456229/pexels-photo-6456229.jpeg",
+            intensity: 5
+        },
+        {
+            name: "슬라이딩 레그 컬",
+            image: "https://images.pexels.com/photos/6550837/pexels-photo-6550837.jpeg",
+            intensity: 6
+        }
+    ],
+    calves: [
+        {
+            name: "스탠딩 카프 레이즈",
+            image: "https://images.pexels.com/photos/6551012/pexels-photo-6551012.jpeg",
+            intensity: 4
+        },
+        {
+            name: "시티드 카프 레이즈",
+            image: "../images/CA001_seated_calf_raise.png",6551012/pexels-photo-6551012.jpeg",
+            intensity: 4
+        },
+        {
+            name: "도넛 카프 레이즈",
+            image: "../images/CA002_donkey_calf_raise.png",6551012/pexels-photo-6551012.jpeg",
+            intensity: 3
+        },
+        {
+            name: "원 레그 카프 레이즈",
+            image: "https://images.pexels.com/photos/6551012/pexels-photo-6551012.jpeg",
+            intensity: 5
+        },
+        {
+            name: "머신 카프 레이즈",
+            image: "https://images.pexels.com/photos/3837781/pexels-photo-3837781.jpeg",
+            intensity: 4
+        }
+    ]
+};
+
+
+        const muscleNames = {
+            shoulder: '어깨',
+            chest: '가슴',
+            biceps: '이두근',
+            triceps: '삼두근',
+            forearm: '전완근',
+            abs: '복근',
+            quads: '허벅지',
+            traps: '승모근',
+            'rear-shoulder': '어깨 후면',
+            lats: '등',
+            erector: '기립근',
+            glutes: '둔근',
+            hamstrings: '햄스트링',
+            calves: '종아리'
+        };
+
+        let cartExercises = [];
+        let selectedMuscle = null;
+
+        // 운동 리스트 업데이트
+        function updateExerciseList(muscleType) {
+            const exercises = exerciseData[muscleType];
+            const muscleName = muscleNames[muscleType];
+            const exerciseList = document.getElementById('exercise-list');
+            selectedMuscle = muscleType;
+
+            // 모든 클릭 영역에서 active 클래스 제거
+            document.querySelectorAll('.clickable-area').forEach(area => {
+                area.classList.remove('active');
+            });
+
+            // 클릭된 근육의 모든 영역에 active 클래스 추가
+            document.querySelectorAll(`[onclick*="'${muscleType}'"]`).forEach(area => {
+                area.classList.add('active');
+            });
+
+            let html = '';
+            exercises.forEach(exercise => {
+                html += `
+                    <div class="exercise-item" onclick="addToCart('${exercise.name}', '${muscleName}')">
+                        <div class="exercise-name">${exercise.name}</div>
+                        <div class="exercise-image">
+                            ${exercise.image ? `<img src="${exercise.image}" alt="${exercise.name}" loading="lazy">` : '[이미지 URL을 입력하세요]'}
+                        </div>
+                    </div>
+                `;
+            });
+
+            exerciseList.innerHTML = html;
+        }
+
+        // 장바구니에 추가
+        function addToCart(exerciseName, muscleName) {
+            if (!cartExercises.find(ex => ex.name === exerciseName)) {
+                // 운동 강도 찾기
+                let intensity = 3; // 기본값
+                for (let muscle in exerciseData) {
+                    const exercise = exerciseData[muscle].find(ex => ex.name === exerciseName);
+                    if (exercise) {
+                        intensity = exercise.intensity;
+                        break;
+                    }
+                }
+                cartExercises.push({ name: exerciseName, muscle: muscleName, intensity: intensity });
+                updateCart();
+            }
+        }
+
+        // 장바구니에서 제거
+        function removeFromCart(index) {
+            cartExercises.splice(index, 1);
+            updateCart();
+        }
+
+        // 운동 순서 변경
+        function moveUp(index) {
+            if (index > 0) {
+                [cartExercises[index], cartExercises[index - 1]] = 
+                [cartExercises[index - 1], cartExercises[index]];
+                updateCart();
+            }
+        }
+
+        function moveDown(index) {
+            if (index < cartExercises.length - 1) {
+                [cartExercises[index], cartExercises[index + 1]] = 
+                [cartExercises[index + 1], cartExercises[index]];
+                updateCart();
+            }
+        }
+
+        // 장바구니 UI 업데이트
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            
+            if (cartExercises.length === 0) {
+                cartItems.innerHTML = `
+                    <div class="empty-cart-message">
+                        운동을 선택하면<br>여기에 추가됩니다
+                    </div>
+                `;
+                updateStartButton();
+                return;
+            }
+
+            let html = '';
+            cartExercises.forEach((exercise, index) => {
+                html += `
+                    <div class="cart-item">
+                        <span class="drag-handle">☰</span>
+                        <div class="cart-item-content">
+                            <strong>${index + 1}. ${exercise.name}</strong>
+                            <div style="font-size: 0.85rem; color: #6c757d; margin-top: 0.3rem;">
+                                <button onclick="moveUp(${index})" style="margin-right: 0.3rem; padding: 0.2rem 0.5rem; border: none; background: #6c757d; color: white; border-radius: 3px; cursor: pointer;">↑</button>
+                                <button onclick="moveDown(${index})" style="padding: 0.2rem 0.5rem; border: none; background: #6c757d; color: white; border-radius: 3px; cursor: pointer;">↓</button>
+                                <span style="margin-left: 0.5rem;">${exercise.muscle} (강도: ${exercise.intensity})</span>
+                            </div>
+                        </div>
+                        <button class="remove-btn" onclick="removeFromCart(${index})">삭제</button>
+                    </div>
+                `;
+            });
+
+            cartItems.innerHTML = html;
+            updateStartButton();
+        }
+
+        // 운동 시작 버튼 업데이트
+        function updateStartButton() {
+            const startBtn = document.getElementById('start-workout');
+            const totalIntensity = cartExercises.reduce((sum, ex) => sum + ex.intensity, 0);
+            
+            // 기존 클래스 제거
+            startBtn.classList.remove('intensity-low', 'intensity-high');
+            
+            if (totalIntensity < 45) {
+                startBtn.classList.add('intensity-low');
+            } else if (totalIntensity > 55) {
+                startBtn.classList.add('intensity-high');
+            }
+        }
+
+        // 자동 추천 기능
+        document.getElementById('auto-recommend').addEventListener('click', function() {
+            const currentIntensity = cartExercises.reduce((sum, ex) => sum + ex.intensity, 0);
+            const targetIntensity = 50; // 목표 강도
+            const neededIntensity = targetIntensity - currentIntensity;
+            
+            if (neededIntensity <= 0) {
+                alert('이미 충분한 운동이 담겨있습니다!');
+                return;
+            }
+            
+            // 현재 없는 운동 목록 생성
+            const allExercises = [];
+            Object.keys(exerciseData).forEach(muscle => {
+                exerciseData[muscle].forEach(ex => {
+                    allExercises.push({ 
+                        name: ex.name, 
+                        muscle: muscleNames[muscle],
+                        intensity: ex.intensity 
+                    });
+                });
+            });
+
+            // 장바구니에 없는 운동들 필터링
+            const availableExercises = allExercises.filter(ex => 
+                !cartExercises.find(cartEx => cartEx.name === ex.name)
+            );
+
+            // 목표 강도에 맞춰 운동 추천
+            let addedIntensity = 0;
+            const recommendedExercises = [];
+            
+            // 강도별로 정렬
+            availableExercises.sort((a, b) => b.intensity - a.intensity);
+            
+            for (let ex of availableExercises) {
+                if (addedIntensity >= neededIntensity) break;
+                if (addedIntensity + ex.intensity <= neededIntensity + 5) { // 약간의 여유
+                    recommendedExercises.push(ex);
+                    addedIntensity += ex.intensity;
+                }
+            }
+            
+            // 추천 운동이 없으면 랜덤으로 추가
+            if (recommendedExercises.length === 0 && availableExercises.length > 0) {
+                const randomIndex = Math.floor(Math.random() * availableExercises.length);
+                recommendedExercises.push(availableExercises[randomIndex]);
+            }
+            
+            // 장바구니에 추가
+            recommendedExercises.forEach(ex => {
+                cartExercises.push(ex);
+            });
+
+            updateCart();
+            
+            if (recommendedExercises.length > 0) {
+                alert(`${recommendedExercises.length}개의 운동이 추천되었습니다!`);
+            }
+        });
+
+        // 초기화 기능
+        document.getElementById('reset-cart').addEventListener('click', function() {
+            if (confirm('운동 플랜을 초기화하시겠습니까?')) {
+                cartExercises = [];
+                updateCart();
+            }
+        });
+
+        // 운동 시작하기
+        document.getElementById('start-workout').addEventListener('click', function() {
+            if (cartExercises.length === 0) {
+                alert('운동을 먼저 선택해주세요!');
+                return;
+            }
+            alert(`총 ${cartExercises.length}개의 운동을 시작합니다!\n\n운동 진행 페이지로 이동합니다.`);
+            // 실제로는 새 페이지로 이동
+        });
+
+        // 유튜브 슬라이더 순환 기능
+        let currentSlide = 0;
+        const totalSlides = 3;
+        const slider = document.getElementById('video-slider');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        function updateSlider() {
+            const offset = currentSlide * -100;
+            slider.style.transform = `translateX(calc(${offset}% - ${currentSlide}rem))`;
+        }
+
+        prevBtn.addEventListener('click', function() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlider();
+        });
+
+        nextBtn.addEventListener('click', function() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlider();
+        });
+
+        // 유튜브 썸네일 로드
+        document.addEventListener('DOMContentLoaded', function() {
+            const thumbnails = document.querySelectorAll('.video-thumbnail img');
+            thumbnails.forEach(img => {
+                const videoId = img.getAttribute('data-video-id');
+                if (videoId) {
+                    img.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
