@@ -1860,6 +1860,19 @@ const exerciseData = {
                     img.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
                 }
             });
+
+            // 영상 클릭 시 유튜브로 이동
+            const videoItems = document.querySelectorAll('.video-item');
+            videoItems.forEach(item => {
+                const img = item.querySelector('img[data-video-id]');
+                if (img) {
+                    const videoId = img.getAttribute('data-video-id');
+                    item.style.cursor = 'pointer';
+                    item.addEventListener('click', function() {
+                        window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+                    });
+                }
+            });
         });
 
         // 프로필 드롭다운 함수들
