@@ -43,6 +43,7 @@
             display: flex;
             align-items: center;
             gap: 1rem;
+            position: relative;
         }
 
         .profile-pic {
@@ -75,37 +76,29 @@
             color: #333;
         }
 
-        /* 프로필 모달 */
-        .profile-modal {
+        /* 프로필 드롭다운 */
+        .profile-dropdown {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .profile-modal.active {
-            display: flex;
-        }
-
-        .profile-modal-content {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 1rem;
             background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            animation: modalSlideIn 0.3s ease;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            min-width: 320px;
+            z-index: 1000;
+            animation: dropdownSlideIn 0.3s ease;
         }
 
-        @keyframes modalSlideIn {
+        .profile-dropdown.active {
+            display: block;
+        }
+
+        @keyframes dropdownSlideIn {
             from {
-                transform: translateY(-50px);
+                transform: translateY(-10px);
                 opacity: 0;
             }
             to {
@@ -114,39 +107,34 @@
             }
         }
 
-        .profile-modal-header {
+        .profile-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            transform: rotate(45deg);
+            box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .profile-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .profile-modal-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .profile-close-btn {
-            background: none;
-            border: none;
-            font-size: 2rem;
-            color: #999;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .profile-close-btn:hover {
-            color: #333;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
         }
 
         .profile-image-large {
-            width: 200px;
-            height: 200px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            margin: 0 auto 2rem;
             overflow: hidden;
-            border: 5px solid #f0f0f0;
+            border: 3px solid #f0f0f0;
+            flex-shrink: 0;
         }
 
         .profile-image-large img {
@@ -155,25 +143,42 @@
             object-fit: cover;
         }
 
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+
+        .profile-email {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
         .profile-menu {
             display: flex;
             flex-direction: column;
-            gap: 0.8rem;
+            gap: 0.5rem;
         }
 
         .profile-menu-item {
-            padding: 1rem 1.5rem;
+            padding: 0.9rem 1.2rem;
             background: #f8f9fa;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 500;
             color: #333;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 0.8rem;
+            text-align: left;
         }
 
         .profile-menu-item:hover {
@@ -184,7 +189,7 @@
 
         .profile-menu-item::before {
             content: '';
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
         .profile-menu-item:nth-child(1)::before { content: '📷'; }
@@ -811,10 +816,29 @@
     <header>
         <div class="logo">💪 내 손 안의 PT</div>
         <div class="user-info">
-            <div class="profile-pic" onclick="openProfileModal()">
+            <div class="profile-pic" onclick="toggleProfileDropdown()">
                 <img src="https://static.toiimg.com/thumb/msid-123665346,imgsize-695546,width-400,resizemode-4/bodybuilding-legend-ronnie-coleman-back-training-weeks.jpg" alt="프로필" id="profileImage">
             </div>
-            <span class="user-name">윤준형</span>
+            <span class="user-name" id="userName">윤준형</span>
+            
+            <!-- 프로필 드롭다운 -->
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-header">
+                    <div class="profile-image-large">
+                        <img src="https://static.toiimg.com/thumb/msid-123665346,imgsize-695546,width-400,resizemode-4/bodybuilding-legend-ronnie-coleman-back-training-weeks.jpg" alt="프로필 사진" id="dropdownProfileImage">
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="dropdownUserName">윤준형</div>
+                        <div class="profile-email">semicolonable@gmail.com</div>
+                    </div>
+                </div>
+                <div class="profile-menu">
+                    <button class="profile-menu-item" onclick="changeProfilePhoto()">프로필 사진 변경</button>
+                    <button class="profile-menu-item" onclick="editProfile()">이름 변경</button>
+                    <button class="profile-menu-item" onclick="changePassword()">비밀번호 변경</button>
+                    <button class="profile-menu-item" onclick="editSettings()">설정</button>
+                </div>
+            </div>
             <button class="logout-btn">로그아웃</button>
         </div>
     </header>
@@ -1093,25 +1117,6 @@
             <button class="slider-btn" id="next-btn">다음 ▶</button>
         </div>
     </footer>
-
-    <!-- 프로필 모달 -->
-    <div class="profile-modal" id="profileModal" onclick="closeProfileModal(event)">
-        <div class="profile-modal-content" onclick="event.stopPropagation()">
-            <div class="profile-modal-header">
-                <div class="profile-modal-title">프로필</div>
-                <button class="profile-close-btn" onclick="closeProfileModal()">&times;</button>
-            </div>
-            <div class="profile-image-large">
-                <img src="https://static.toiimg.com/thumb/msid-123665346,imgsize-695546,width-400,resizemode-4/bodybuilding-legend-ronnie-coleman-back-training-weeks.jpg" alt="프로필 사진" id="modalProfileImage">
-            </div>
-            <div class="profile-menu">
-                <button class="profile-menu-item" onclick="changeProfilePhoto()">프로필 사진 변경</button>
-                <button class="profile-menu-item" onclick="editProfile()">이름 변경</button>
-                <button class="profile-menu-item" onclick="changePassword()">비밀번호 변경</button>
-                <button class="profile-menu-item" onclick="editSettings()">설정</button>
-            </div>
-        </div>
-    </div>
 
     <script>
 
@@ -1857,18 +1862,21 @@ const exerciseData = {
             });
         });
 
-        // 프로필 모달 함수들
-        function openProfileModal() {
-            const modal = document.getElementById('profileModal');
-            modal.classList.add('active');
+        // 프로필 드롭다운 함수들
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('active');
         }
 
-        function closeProfileModal(event) {
-            const modal = document.getElementById('profileModal');
-            if (!event || event.target === modal) {
-                modal.classList.remove('active');
+        // 드롭다운 외부 클릭 시 닫기
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            const profilePic = document.querySelector('.profile-pic');
+            
+            if (dropdown && !dropdown.contains(event.target) && !profilePic.contains(event.target)) {
+                dropdown.classList.remove('active');
             }
-        }
+        });
 
         function changeProfilePhoto() {
             const input = document.createElement('input');
@@ -1881,7 +1889,7 @@ const exerciseData = {
                     reader.onload = function(event) {
                         const imageUrl = event.target.result;
                         document.getElementById('profileImage').src = imageUrl;
-                        document.getElementById('modalProfileImage').src = imageUrl;
+                        document.getElementById('dropdownProfileImage').src = imageUrl;
                         alert('프로필 사진이 변경되었습니다!');
                     };
                     reader.readAsDataURL(file);
@@ -1891,10 +1899,11 @@ const exerciseData = {
         }
 
         function editProfile() {
-            const currentName = document.querySelector('.user-name').textContent;
+            const currentName = document.getElementById('userName').textContent;
             const newName = prompt('새로운 이름을 입력하세요:', currentName);
             if (newName && newName.trim() !== '') {
-                document.querySelector('.user-name').textContent = newName.trim();
+                document.getElementById('userName').textContent = newName.trim();
+                document.getElementById('dropdownUserName').textContent = newName.trim();
                 alert('이름이 변경되었습니다!');
             }
         }
