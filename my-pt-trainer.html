@@ -75,6 +75,123 @@
             color: #333;
         }
 
+        /* 프로필 모달 */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .profile-modal.active {
+            display: flex;
+        }
+
+        .profile-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .profile-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .profile-close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .profile-close-btn:hover {
+            color: #333;
+        }
+
+        .profile-image-large {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            overflow: hidden;
+            border: 5px solid #f0f0f0;
+        }
+
+        .profile-image-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .profile-menu-item {
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #333;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .profile-menu-item:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .profile-menu-item::before {
+            content: '';
+            font-size: 1.2rem;
+        }
+
+        .profile-menu-item:nth-child(1)::before { content: '📷'; }
+        .profile-menu-item:nth-child(2)::before { content: '✏️'; }
+        .profile-menu-item:nth-child(3)::before { content: '🔒'; }
+        .profile-menu-item:nth-child(4)::before { content: '⚙️'; }
+
         .logout-btn {
             padding: 0.6rem 1.5rem;
             background: #dc3545;
@@ -694,8 +811,8 @@
     <header>
         <div class="logo">💪 내 손 안의 PT</div>
         <div class="user-info">
-            <div class="profile-pic">
-                <img src="https://static.toiimg.com/thumb/msid-123665346,imgsize-695546,width-400,resizemode-4/bodybuilding-legend-ronnie-coleman-back-training-weeks.jpg" alt="프로필">
+            <div class="profile-pic" onclick="openProfileModal()">
+                <img src="https://static.toiimg.com/thumb/msid-123665346,imgsize-695546,width-400,resizemode-4/bodybuilding-legend-ronnie-coleman-back-training-weeks.jpg" alt="프로필" id="profileImage">
             </div>
             <span class="user-name">윤준형</span>
             <button class="logout-btn">로그아웃</button>
@@ -977,9 +1094,26 @@
         </div>
     </footer>
 
+    <!-- 프로필 모달 -->
+    <div class="profile-modal" id="profileModal" onclick="closeProfileModal(event)">
+        <div class="profile-modal-content" onclick="event.stopPropagation()">
+            <div class="profile-modal-header">
+                <div class="profile-modal-title">프로필</div>
+                <button class="profile-close-btn" onclick="closeProfileModal()">&times;</button>
+            </div>
+            <div class="profile-image-large">
+                <img src="https://static.toiimg.com/thumb/msid-123665346,imgsize-695546,width-400,resizemode-4/bodybuilding-legend-ronnie-coleman-back-training-weeks.jpg" alt="프로필 사진" id="modalProfileImage">
+            </div>
+            <div class="profile-menu">
+                <button class="profile-menu-item" onclick="changeProfilePhoto()">프로필 사진 변경</button>
+                <button class="profile-menu-item" onclick="editProfile()">이름 변경</button>
+                <button class="profile-menu-item" onclick="changePassword()">비밀번호 변경</button>
+                <button class="profile-menu-item" onclick="editSettings()">설정</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // 운동 데이터 (이미지 URL은 공란으로 남김 - 사용자가 직접 입력할 수 있도록)
-// URL: Uniform Resource Locator (인터넷 자원의 위치를 나타내는 표준 주소 형식)
 
 const exerciseData = {
     shoulder: [
@@ -1722,6 +1856,56 @@ const exerciseData = {
                 }
             });
         });
+
+        // 프로필 모달 함수들
+        function openProfileModal() {
+            const modal = document.getElementById('profileModal');
+            modal.classList.add('active');
+        }
+
+        function closeProfileModal(event) {
+            const modal = document.getElementById('profileModal');
+            if (!event || event.target === modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        function changeProfilePhoto() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const imageUrl = event.target.result;
+                        document.getElementById('profileImage').src = imageUrl;
+                        document.getElementById('modalProfileImage').src = imageUrl;
+                        alert('프로필 사진이 변경되었습니다!');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+
+        function editProfile() {
+            const currentName = document.querySelector('.user-name').textContent;
+            const newName = prompt('새로운 이름을 입력하세요:', currentName);
+            if (newName && newName.trim() !== '') {
+                document.querySelector('.user-name').textContent = newName.trim();
+                alert('이름이 변경되었습니다!');
+            }
+        }
+
+        function changePassword() {
+            alert('비밀번호 변경 기능은 준비 중입니다.');
+        }
+
+        function editSettings() {
+            alert('설정 기능은 준비 중입니다.');
+        }
     </script>
 </body>
 </html>
